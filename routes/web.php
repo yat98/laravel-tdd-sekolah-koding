@@ -27,9 +27,15 @@ Route::get('blog', [BlogController::class, 'index'])
 Route::group(['middleware' => 'auth'], function(){
     Route::get('blog/create', [BlogController::class, 'create'])
         ->name('blog.create'); 
-
+        
     Route::post('blog', [BlogController::class, 'store'])
         ->name('blog.store'); 
+
+    Route::get('blog/{blog:slug}/edit', [BlogController::class, 'edit'])
+            ->name('blog.edit'); 
+
+    Route::put('blog/{blog}', [BlogController::class, 'update'])
+        ->name('blog.update'); 
 });
 
 Route::get('blog/{blog:slug}', [BlogController::class, 'show'])

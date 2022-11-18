@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\Blog;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -13,12 +14,13 @@ class BlogTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private $blog;
+    private $blog, $user;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->blog = Blog::factory(1)->create()->first();
+        $this->user = User::factory(1)->create()->first();
     }
 
     /**
@@ -65,15 +67,52 @@ class BlogTest extends TestCase
      */
     public function userCanPostBlogPage()
     {
-        $user = User::factory(1)->create()->first();
-        $this->actingAs($user);
-        $blog = Blog::factory(1)->make()->first();
+        $this->actingAs($this->user);
+        $input = [
+            'title' => 'Test From Feature Test '.time(),
+            'subject'=> 'Test test test...'
+        ];
+        $slug = Str::slug($input['title']);
 
-        $this->post('blog',$blog->toArray())
-            ->assertRedirect('blog/'.$blog->slug);
+        $this->post('blog',$input)->assertRedirect('blog/'.$slug);
 
-        $this->get('blog/'.$blog->slug)
-            ->assertSee($blog->title)
-            ->assertSee($user->name);
+        $this->get('blog/'.$slug)
+            ->assertSee($input['title'])
+            ->assertSee($this->user->name);
+    }
+
+    /**
+     * @test
+     * Test guest cant post blog page
+     *
+     * @return void
+     */
+    public function guestCantUpdateBlogPage()
+    {
+        $this->get('blog/'.$this->blog->slug.'/edit')
+            ->assertRedirect('/login');
+    }
+
+    /**
+     * @test
+     * Test user can update blog page
+     *
+     * @return void
+     */
+    public function userCanUpdateBlogPage()
+    {
+        $this->actingAs($this->user);
+        $input = [
+            'title' => 'Update Test From Feature Test '.time(),
+            'subject'=> 'Update test test test...'
+        ];
+        $slug = Str::slug($input['title']);
+
+        $this->json('PUT','blog/'.$this->blog->id,$input)
+            ->assertRedirect('blog/'.$slug);
+
+        $this->get('blog/'.$slug)
+            ->assertSee($input['title'])
+            ->assertSee($input['subject']);
     }
 }

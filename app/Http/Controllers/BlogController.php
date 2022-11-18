@@ -35,4 +35,18 @@ class BlogController extends Controller
 
         return redirect()->route('blog.show',$blog);
     }
+
+    public function edit(Blog $blog)
+    {
+        return view('pages.blog.edit', compact('blog'));
+    }
+
+    public function update(Request $request, Blog $blog)
+    {
+        $data = $request->all();
+        $data['slug'] = Str::slug($request->title);
+        $blog->update($data);
+
+        return redirect()->route('blog.show',$blog);
+    }
 }
