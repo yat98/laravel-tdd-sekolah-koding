@@ -137,9 +137,10 @@ class BlogTest extends TestCase
      */
     public function userUpdateBlogRequireTitle()
     {
-        $input = $this->makeBlog([
+        $this->actingAs($this->blog->user);
+        $input = [
             'subject'=> 'Update test test test...'
-        ]);
+        ];
 
         $this->put('blog/'.$this->blog->id,$input)
             ->assertSessionHasErrors('title');
@@ -153,12 +154,36 @@ class BlogTest extends TestCase
      */
     public function userUpdateBlogRequireSubject()
     {
-        $input = $this->makeBlog([
+        $this->actingAs($this->blog->user);
+        $input = [
             'title' => 'Update test From Feature Test '.time(),
-        ]);
+        ];
 
         $this->put('blog/'.$this->blog->id,$input)
             ->assertSessionHasErrors('subject');
+    }
+
+    /**
+     * @test
+     * Test user cant update other user blog 
+     *
+     * @return void
+     */
+    public function userCantUpdateOtherUserBlog()
+    {
+        $this->actingAs($this->user);
+
+        $this->get('blog/'.$this->blog->slug.'/edit')
+            ->assertStatus(403);
+
+        $input = $this->makeBlog([
+            'title' => 'Update test From Feature Test '.time(),
+            'subject'=> 'Update test test test...'
+        ]);
+        $slug = Str::slug($input['title']);
+
+        $this->json('PUT','blog/'.$this->blog->id,$input)
+            ->assertStatus(403);
     }
 
     /**
@@ -169,10 +194,12 @@ class BlogTest extends TestCase
      */
     public function userCanUpdateBlogPage()
     {
-        $input = $this->makeBlog([
+        $this->actingAs($this->blog->user);
+
+        $input = [
             'title' => 'Update test From Feature Test '.time(),
             'subject'=> 'Update test test test...'
-        ]);
+        ];
         $slug = Str::slug($input['title']);
 
         $this->json('PUT','blog/'.$this->blog->id,$input)

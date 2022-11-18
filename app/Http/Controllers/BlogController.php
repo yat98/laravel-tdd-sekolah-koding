@@ -43,16 +43,20 @@ class BlogController extends Controller
 
     public function edit(Blog $blog)
     {
+        if($blog->user_id != Auth::user()->id) abort(403);
+
         return view('pages.blog.edit', compact('blog'));
     }
 
     public function update(Request $request, Blog $blog)
     {
+        if($blog->user_id != Auth::user()->id) abort(403);
+
         $request->validate([
             'title' => 'required',
             'subject' => 'required',
         ]);
-        
+
         $data = $request->all();
         $data['slug'] = Str::slug($request->title);
         $blog->update($data);
