@@ -1,4 +1,9 @@
 <h1>Edit Blog</h1>
+<ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+</ul>
 <form action="{{ route('blog.update', $blog) }}" method="POST">
     @csrf
     @method('PUT')

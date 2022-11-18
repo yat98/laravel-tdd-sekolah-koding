@@ -1,4 +1,9 @@
 <h1>Create Blog</h1>
+<ul>
+    @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+    @endforeach
+</ul>
 <form action="{{ route('blog.store') }}" method="POST">
     @csrf
     <p>

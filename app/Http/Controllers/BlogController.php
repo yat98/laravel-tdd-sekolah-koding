@@ -28,6 +28,11 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required',
+            'subject' => 'required',
+        ]);
+
         $data = $request->all();
         $data['user_id'] = Auth::user()->id;
         $data['slug'] = Str::slug($request->title);
@@ -43,6 +48,11 @@ class BlogController extends Controller
 
     public function update(Request $request, Blog $blog)
     {
+        $request->validate([
+            'title' => 'required',
+            'subject' => 'required',
+        ]);
+        
         $data = $request->all();
         $data['slug'] = Str::slug($request->title);
         $blog->update($data);
