@@ -12,6 +12,15 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class BlogTest extends TestCase
 {
     use DatabaseTransactions;
+
+    private $blog;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->blog = Blog::factory(1)->create()->first();
+    }
+
     /**
      * @test
      * Test index blog page.
@@ -20,9 +29,8 @@ class BlogTest extends TestCase
      */
     public function userCanSeeBlogPage()
     {
-        $blog = Blog::factory(1)->create()->first();
         $this->get('blog')
-            ->assertSee($blog->title);
+            ->assertSee($this->blog->title);
     }
 
      /**
@@ -33,9 +41,8 @@ class BlogTest extends TestCase
      */
     public function userCanSeeSingleBlogPage()
     {
-        $blog = Blog::factory(1)->create()->first();
-        $this->get('blog/'.$blog->slug)
-            ->assertSee($blog->subject);
+        $this->get('blog/'.$this->blog->slug)
+            ->assertSee($this->blog->subject);
     }
 
     /**
@@ -44,7 +51,7 @@ class BlogTest extends TestCase
      *
      * @return void
      */
-    public function gueastCantPostBlogPage()
+    public function guestCantPostBlogPage()
     {
         $this->get('blog/create')
             ->assertRedirect('/login');

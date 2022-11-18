@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,8 +28,9 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
-        $data= $request->all();
-        $data['user_id']= Auth::user()->id;
+        $data = $request->all();
+        $data['user_id'] = Auth::user()->id;
+        $data['slug'] = Str::slug($request->title);
         $blog = Blog::create($data);
 
         return redirect()->route('blog.show',$blog);
